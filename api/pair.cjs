@@ -1,33 +1,25 @@
-const express = require('express');
-const fs = require('fs-extra');
-const { exec } = require("child_process");
-let router = express.Router();
-const pino = require("pino");
-const { Boom } = require("@hapi/boom");
+import express from 'express';
+import fs from 'fs-extra';
+import { exec } from "child_process";
+import pino from "pino";
+import { Boom } from "@hapi/boom";
+import { default as makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, DisconnectReason } from "@whiskeysockets/baileys";
+import { upload } from './mega.js'; // Ensure mega.js also uses export
+
+const router = express.Router();
+
 const MESSAGE = process.env.MESSAGE || `
 *SESSION GENERATED SUCCESSFULY* ✅
 
 *Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
 https://github.com/proboy315/ProBoy-MD
 
-
-
 *ProBoy-MD--WHATTSAPP-BOT* 🥀
 `;
 
-const { upload } = require('./mega');
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    delay,
-    makeCacheableSignalKeyStore,
-    Browsers,
-    DisconnectReason
-} = require("@whiskeysockets/baileys");
-
 // Ensure the directory is empty when the app starts
 if (fs.existsSync('./auth_info_baileys')) {
-    fs.emptyDirSync(__dirname + '/auth_info_baileys');
+    fs.emptyDirSync('./auth_info_baileys');
 }
 
 router.get('/', async (req, res) => {
@@ -90,14 +82,14 @@ router.get('/', async (req, res) => {
                         let msgsss = await Smd.sendMessage(user, { text: Scan_Id });
                         await Smd.sendMessage(user, { text: MESSAGE }, { quoted: msgsss });
                         await delay(1000);
-                        try { await fs.emptyDirSync(__dirname + '/auth_info_baileys'); } catch (e) {}
+                        try { await fs.emptyDirSync('./auth_info_baileys'); } catch (e) {}
 
                     } catch (e) {
                         console.log("Error during file upload or message send: ", e);
                     }
 
                     await delay(100);
-                    await fs.emptyDirSync(__dirname + '/auth_info_baileys');
+                    await fs.emptyDirSync('./auth_info_baileys');
                 }
 
                 // Handle connection closures
@@ -126,7 +118,7 @@ router.get('/', async (req, res) => {
             exec('pm2 restart qasim');
             console.log("Service restarted due to error");
             SUHAIL();
-            await fs.emptyDirSync(__dirname + '/auth_info_baileys');
+            await fs.emptyDirSync('./auth_info_baileys');
             if (!res.headersSent) {
                 await res.send({ code: "Try After Few Minutes" });
             }
@@ -136,4 +128,4 @@ router.get('/', async (req, res) => {
     await SUHAIL();
 });
 
-module.exports = router;
+export default router;
